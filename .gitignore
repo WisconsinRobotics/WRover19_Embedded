@@ -1,0 +1,12 @@
+.settings/
+Debug/
+TM4C129_WRaptor_MKII/
+tm4c1292ncpdt.*/
+tm4c1292ncpdt*/
+.launches/
+.ccsproject
+*.swp
+*.swo
+*.vim
+*.diff
+*.Rhistory
