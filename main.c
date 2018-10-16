@@ -13,6 +13,8 @@
 #include "FreeRTOS_IP.h"
 #include "config_udp.h"
 #include "MechanicalControlPackets.h"
+#include "CarHorn.h"
+#include "ControlServicePackets.h"
 extern void vPortSVCHandler(void);
 extern void xPortPendSVHandler(void);
 extern void xPortSysTickHandler(void);
@@ -67,6 +69,8 @@ int main(void)
     uartManager(0);
 
     InitBCLUDP(main_bcl_service);
+
+    BCL_pktCallbackRegister(HonkHorn, QUERY_HEARTBEAT_OPCODE);
 
     vTaskStartScheduler();
 
