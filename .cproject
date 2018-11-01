@@ -48,6 +48,7 @@
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}"/>
 									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/tasks/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/CallBacks/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../BadgerFreeRTOS/FreeRTOS/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../BadgerFreeRTOS/FreeRTOS/Plus-TCP/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../BadgerFreeRTOS/app/include"/>
@@ -191,4 +192,5 @@
 			<content-type-mapping configuration="" content-type="org.eclipse.cdt.core.cxxSource" language="com.ti.ccstudio.core.TIGPPLanguage"/>
 		</project-mappings>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>
