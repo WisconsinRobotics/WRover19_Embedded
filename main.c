@@ -15,6 +15,7 @@
 #include "MechanicalControlPackets.h"
 #include "CarHorn.h"
 #include "arm.h"
+#include "drive.h"
 #include "ControlServicePackets.h"
 extern void vPortSVCHandler(void);
 extern void xPortPendSVHandler(void);
@@ -72,6 +73,7 @@ int main(void)
     InitBCLUDP(main_bcl_service);
 
     init_arm();
+    init_drive();
     BCL_pktCallbackRegister(HonkHorn, QUERY_HEARTBEAT_OPCODE);
 
     vTaskStartScheduler();
