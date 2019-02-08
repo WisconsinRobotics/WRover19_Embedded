@@ -55,11 +55,13 @@ void drive_task(void *args)
     while(1) {
         curTicks = xTaskGetTickCount();
         if(curTicks - last_packet_ticks > 500) {
-            TankDrivePayload pyld;
-            pyld.left = 0;
-            pyld.right = 0;
+            back_left.set_speed(&back_left, 0);
+            mid_left.set_speed(&mid_left, 0);
+            front_left.set_speed(&mid_left, 0);
 
-            drive_callback(0, &pyld);
+            back_right.set_speed(&back_right, 0);
+            mid_right.set_speed(&mid_right, 0);
+            front_right.set_speed(&front_right, 0);
         }
 
         vTaskDelay(250);
@@ -69,6 +71,8 @@ void drive_task(void *args)
 BCL_STATUS drive_callback(int bcl_inst, BclPayloadPtr payload)
 {
     TankDrivePayload *pyld = (TankDrivePayload *)payload;
+
+    last_packet_ticks = xTaskGetTickCount();
 
     back_left.set_speed(&back_left, pyld->left);
     mid_left.set_speed(&mid_left, pyld->left);
