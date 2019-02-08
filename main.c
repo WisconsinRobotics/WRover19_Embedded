@@ -74,7 +74,6 @@ int main(void)
 
     init_arm();
     init_drive();
-    BCL_pktCallbackRegister(HonkHorn, QUERY_HEARTBEAT_OPCODE);
 
     vTaskStartScheduler();
 
