@@ -72,7 +72,7 @@ int main(void)
 
     InitBCLUDP(main_bcl_service);
 
-    init_arm();
+    //init_arm();
     init_drive();
 
     vTaskStartScheduler();

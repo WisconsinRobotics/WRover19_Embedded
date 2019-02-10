@@ -12,7 +12,6 @@
 #include "bcl_port.h"
 #include "roboclaw_driver.h"
 #include "arm.h"
-#include <stdlib.h> /// use for absolute value?
 
 static void arm_task(void *args);
 static BCL_STATUS arm_callback(int bcl_inst, BclPayloadPtr payload);
@@ -31,19 +30,19 @@ int init_arm(void)
     const int pulses_per_rev = 7*188*3;
 
     // initialize each joint driver
-    if(roboclaw_driver_init(&arm_claw, uart3, 0x80, pulses_per_rev, pulses_per_rev/360, true)) // last arg = motor 1
+    if(roboclaw_driver_init(&arm_claw, uart0, 0x83, pulses_per_rev, pulses_per_rev/360, true)) // last arg = motor 1
         return 1;
-    if(roboclaw_driver_init(&arm_turntable, uart3, 0x80, pulses_per_rev, pulses_per_rev/360, false)) // last arg = motor 2
+    if(roboclaw_driver_init(&arm_turntable, uart0, 0x83, pulses_per_rev, pulses_per_rev/360, false)) // last arg = motor 2
             return 1;
-    if(roboclaw_driver_init(&arm_humerus, uart3, 0x81, pulses_per_rev, pulses_per_rev/360, true))
+    if(roboclaw_driver_init(&arm_humerus, uart0, 0x84, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
-    if(roboclaw_driver_init(&arm_forearm, uart3, 0x81, pulses_per_rev, pulses_per_rev/360, false))
+    if(roboclaw_driver_init(&arm_forearm, uart0, 0x84, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
-    if(roboclaw_driver_init(&arm_wrist_ud, uart3, 0x82, pulses_per_rev, pulses_per_rev/360, true))
+    if(roboclaw_driver_init(&arm_wrist_ud, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
-    if(roboclaw_driver_init(&arm_wrist_r, uart3, 0x82, pulses_per_rev, pulses_per_rev/360, false))
+    if(roboclaw_driver_init(&arm_wrist_r, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
-    if(roboclaw_driver_init(&arm_sliding, uart3, 0x83, pulses_per_rev, pulses_per_rev/360, true))
+    if(roboclaw_driver_init(&arm_sliding, uart0, 0x86, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
 
     if(xTaskCreate(arm_task, "arm", configMINIMAL_STACK_SIZE, NULL, 1, NULL) != pdPASS)
@@ -66,7 +65,7 @@ void arm_task(void *args)
  */
 
 void get_direction(int8_t *payload, int *multiplier) {
-    if(payload < 0) {
+    if(*payload < 0) {
         *multiplier = -1;
         *payload = -(*payload);
     }
