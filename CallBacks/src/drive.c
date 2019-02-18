@@ -41,7 +41,7 @@ int init_drive(void)
     if(roboclaw_driver_init(&front_right, uart0, 0x82, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
 
-    if(xTaskCreate(drive_task, "arm", configMINIMAL_STACK_SIZE, NULL, 1, NULL) != pdPASS)
+    if(xTaskCreate(drive_task, "drv", configMINIMAL_STACK_SIZE, NULL, 1, NULL) != pdPASS)
             return 1;
 
     BCL_pktCallbackRegister(drive_callback, SET_TANK_DRIVE_SPEED);
@@ -57,7 +57,9 @@ void drive_task(void *args)
         if(curTicks - last_packet_ticks > 500) {
             back_left.set_speed(&back_left, 0);
             mid_left.set_speed(&mid_left, 0);
-            front_left.set_speed(&mid_left, 0);
+            front_left.set_speed(&front_left, 0);
+
+            vTaskDelay(10);
 
             back_right.set_speed(&back_right, 0);
             mid_right.set_speed(&mid_right, 0);
@@ -74,9 +76,11 @@ BCL_STATUS drive_callback(int bcl_inst, BclPayloadPtr payload)
 
     last_packet_ticks = xTaskGetTickCount();
 
+    pyld->right = -pyld->right;
+
     back_left.set_speed(&back_left, pyld->left);
     mid_left.set_speed(&mid_left, pyld->left);
-    front_left.set_speed(&mid_left, pyld->left);
+    front_left.set_speed(&front_left, pyld->left);
 
     back_right.set_speed(&back_right, pyld->right);
     mid_right.set_speed(&mid_right, pyld->right);
