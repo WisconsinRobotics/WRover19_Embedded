@@ -4,6 +4,7 @@
  *  Created on: Dec 10, 2018
  *      Author: bijan
  */
+#include <stdbool.h>
 
 #include "FreeRTOS.h"
 #include "hardware_abstraction_layer.h"
@@ -14,16 +15,19 @@
 #include "arm.h"
 
 static void arm_task(void *args);
-static BCL_STATUS arm_callback(int bcl_inst, BclPayloadPtr payload);
+static BCL_STATUS arm_pos_callback(int bcl_inst, BclPayloadPtr payload);
+static BCL_STATUS arm_speed_callback(int bcl_inst, BclPayloadPtr payload);
 
+static uint32_t last_packet_ticks = 0;
+static bool last_packet_speed = false;
 // all motor controllers for the arm joints
 static motor_controller arm_claw;
 static motor_controller arm_turntable;
-static motor_controller arm_humerus;
+static motor_controller arm_shoulder;
 static motor_controller arm_forearm;
 static motor_controller arm_wrist_ud; // wrist up down
 static motor_controller arm_wrist_r; // wrist rotate
-static motor_controller arm_sliding;
+static motor_controller arm_elbow;
 
 int init_arm(void)
 {
@@ -34,7 +38,7 @@ int init_arm(void)
         return 1;
     if(roboclaw_driver_init(&arm_turntable, uart0, 0x83, pulses_per_rev, pulses_per_rev/360, false)) // last arg = motor 2
             return 1;
-    if(roboclaw_driver_init(&arm_humerus, uart0, 0x84, pulses_per_rev, pulses_per_rev/360, true))
+    if(roboclaw_driver_init(&arm_shoulder, uart0, 0x84, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
     if(roboclaw_driver_init(&arm_forearm, uart0, 0x84, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
@@ -42,21 +46,34 @@ int init_arm(void)
             return 1;
     if(roboclaw_driver_init(&arm_wrist_r, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
-    if(roboclaw_driver_init(&arm_sliding, uart0, 0x86, pulses_per_rev, pulses_per_rev/360, true))
+    if(roboclaw_driver_init(&arm_elbow, uart0, 0x86, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
 
     if(xTaskCreate(arm_task, "arm", configMINIMAL_STACK_SIZE, NULL, 1, NULL) != pdPASS)
         return 1;
 
-    BCL_pktCallbackRegister(arm_callback, SET_ARM_POS);
+    BCL_pktCallbackRegister(arm_pos_callback, SET_ARM_POS);
+    BCL_pktCallbackRegister(arm_speed_callback, SET_ARM_SPEED);
 
     return 0;
 }
 
 void arm_task(void *args)
 {
+    uint32_t curTicks;
     while(1) {
-        vTaskDelay(100);
+        curTicks = xTaskGetTickCount();
+        if((curTicks - last_packet_ticks > 500) && last_packet_speed) {
+            arm_claw.set_speed(&arm_claw, 0);
+            arm_turntable.set_speed(&arm_turntable, 0);
+            arm_shoulder.set_speed(&arm_shoulder, 0);
+            arm_forearm.set_speed(&arm_forearm, 0);
+            arm_wrist_ud.set_speed(&arm_wrist_ud, 0);
+            arm_wrist_r.set_speed(&arm_wrist_r, 0);
+            arm_elbow.set_speed(&arm_elbow, 0);
+        }
+
+        vTaskDelay(250);
     }
 }
 
@@ -74,10 +91,12 @@ void get_direction(int8_t *payload, int *multiplier) {
     }
 }
 
-BCL_STATUS arm_callback(int bcl_inst, BclPayloadPtr payload)
+BCL_STATUS arm_pos_callback(int bcl_inst, BclPayloadPtr payload)
 {
     ArmPayload *pyld = (ArmPayload *)payload;
     int mult;
+
+    last_packet_speed = false;
 
     get_direction(&pyld->claw, &mult); // change the payload to absolute value, add multiplier
     arm_claw.set_position(&arm_claw, 20 * mult, pyld->claw);
@@ -85,8 +104,8 @@ BCL_STATUS arm_callback(int bcl_inst, BclPayloadPtr payload)
     get_direction(&pyld->turntable, &mult);
     arm_turntable.set_position(&arm_turntable, 20 * mult, pyld->turntable);
 
-    get_direction(&pyld->humerus, &mult);
-    arm_humerus.set_position(&arm_humerus, 20 * mult, pyld->humerus);
+    get_direction(&pyld->shoulder, &mult);
+    arm_shoulder.set_position(&arm_shoulder, 20 * mult, pyld->shoulder);
 
     get_direction(&pyld->forearm, &mult);
     arm_forearm.set_position(&arm_forearm, 20 * mult, pyld->forearm);
@@ -97,8 +116,27 @@ BCL_STATUS arm_callback(int bcl_inst, BclPayloadPtr payload)
     get_direction(&pyld->wrist_rot, &mult);
     arm_wrist_r.set_position(&arm_wrist_r, 20 * mult, pyld->wrist_rot);
 
-    get_direction(&pyld->sliding, &mult);
-    arm_sliding.set_position(&arm_sliding, 20 * mult, pyld->sliding);
+    get_direction(&pyld->elbow, &mult);
+    arm_elbow.set_position(&arm_elbow, 20 * mult, pyld->elbow);
+
+    return BCL_OK;
+}
+
+
+static BCL_STATUS arm_speed_callback(int bcl_inst, BclPayloadPtr payload)
+{
+    ArmPayload *pyld = (ArmPayload *)payload;
+
+    last_packet_ticks = xTaskGetTickCount();
+    last_packet_speed = true;
+
+    arm_claw.set_speed(&arm_claw, pyld->claw);
+    arm_turntable.set_speed(&arm_turntable, pyld->turntable);
+    arm_shoulder.set_speed(&arm_shoulder, pyld->shoulder);
+    arm_forearm.set_speed(&arm_forearm, pyld->forearm);
+    arm_wrist_ud.set_speed(&arm_wrist_ud, pyld->wrist_up_down);
+    arm_wrist_r.set_speed(&arm_wrist_r, pyld->wrist_rot);
+    arm_elbow.set_speed(&arm_elbow, pyld->elbow);
 
     return BCL_OK;
 }

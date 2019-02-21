@@ -52,7 +52,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../BadgerFreeRTOS/FreeRTOS/Plus-TCP/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../BadgerFreeRTOS/app/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../BadgerCommandLibrary/packet/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../BadgerCommandLibrary/robot/amelio/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../BadgerCommandLibrary/robot/wrover19/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../BadgerCommandLibrary/services/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../HAL_BCL/bcl/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../HAL_BCL/hal/include"/>
@@ -81,9 +81,9 @@
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.LIBRARY.18851191" name="Include library file or command file as input (--library, -l)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.LIBRARY" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="libc.a"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../BadgerCommandLibrary/build/launchpad/amelio/BadgerCommandLibrary.lib"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../BadgerCommandLibrary/build/launchpad/wrover19/BadgerCommandLibrary.lib"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../BadgerFreeRTOS/TM4C1294NCPDT/BadgerFreeRTOS.lib"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../HAL_BCL/amelio/HAL_BCL.lib"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/HAL_BCL/wrover19/HAL_BCL.lib}"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../tivaware/driverlib/ccs/Debug/driverlib.lib"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../tivaware/usblib/ccs/Debug/usblib.lib"/>
 								</option>
