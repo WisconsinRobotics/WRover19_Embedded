@@ -67,8 +67,8 @@ int init_camera_mast(void)
     AX12A_setGoalPosition(uart4, PAN_ID, 0x297);
     cur_pan = 0x297;
     camera_mast_delay(10);
-    AX12A_setGoalPosition(uart4, TILT_ID, (0x3FF/2) + 95);
-    cur_tilt = (0x3FF/2) + 95;
+    AX12A_setGoalPosition(uart4, TILT_ID, (0x3FF/2) - 95);
+    cur_tilt = (0x3FF/2) - 95;
 
     return 0;
 }
