@@ -17,6 +17,7 @@
 #include "arm.h"
 #include "drive.h"
 #include "ride_height.h"
+#include "camera_mast.h"
 #include "ControlServicePackets.h"
 extern void vPortSVCHandler(void);
 extern void xPortPendSVHandler(void);
@@ -71,12 +72,14 @@ int main(void)
 
     uartManager(0);
 
-    InitBCLUDP(main_bcl_service);
     i2c_initAvailableBusses(true, 0);
 
-    //init_arm();
-    init_drive();
     init_ride_height();
+    init_drive();
+    init_camera_mast();
+    init_arm();
+
+    InitBCLUDP(main_bcl_service);
 
     vTaskStartScheduler();
 
