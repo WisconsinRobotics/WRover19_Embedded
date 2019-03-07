@@ -15,6 +15,7 @@
 #include "arm.h"
 
 static void arm_task(void *args);
+static BCL_STATUS arm_get_pos_callback(int bcl_inst, BclPayloadPtr payload);
 static BCL_STATUS arm_pos_callback(int bcl_inst, BclPayloadPtr payload);
 static BCL_STATUS arm_speed_callback(int bcl_inst, BclPayloadPtr payload);
 
@@ -90,6 +91,30 @@ void get_direction(int16_t *payload, int *multiplier) {
     else {
         *multiplier = 1;
     }
+}
+
+BCL_STATUS arm_get_pos_callback(int bcl_inst, BclPayloadPtr payload)
+{
+    ArmPayload pyld;
+   
+    pyld.claw = arm_claw.get_position(&arm_claw);
+
+    pyld.arm_turntable = arm_turntable.get_position(&arm_turntable);
+
+    pyld.arm_shoulder = arm_shoulder.get_position(&arm_shoulder);
+
+    pyld.arm_forearm = arm_forearm.get_position(&arm_forearm);
+
+    pyld.arm_wrist_ud = arm_wrist_ud.get_position(&arm_wrist_ud);
+
+    pyld.arm_wrist_r = arm_wrist_r.get_position(&arm_wrist_r);
+
+    pyld.arm_elbow = arm_elbow.get_position(&arm_elbow);
+	
+	// add code to return positions to caller
+	// all calls to get_position will return type int16_t
+	// initialize with badger command lib, rover 19, in mechanical control packets
+    return BCL_OK;    
 }
 
 BCL_STATUS arm_pos_callback(int bcl_inst, BclPayloadPtr payload)
