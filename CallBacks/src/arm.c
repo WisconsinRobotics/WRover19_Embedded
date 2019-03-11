@@ -25,8 +25,8 @@ static motor_controller arm_claw;
 static motor_controller arm_turntable;
 static motor_controller arm_shoulder;
 static motor_controller arm_forearm;
-static motor_controller arm_wrist_ud; // wrist up down
-static motor_controller arm_wrist_r; // wrist rotate
+static motor_controller arm_wrist_left; // wrist up down
+static motor_controller arm_wrist_right; // wrist rotate
 static motor_controller arm_elbow;
 
 int init_arm(void)
@@ -34,20 +34,21 @@ int init_arm(void)
     const int pulses_per_rev = 7*188*3;
 
     // initialize each joint driver
-    if(roboclaw_driver_init(&arm_claw, uart0, 0x83, pulses_per_rev, pulses_per_rev/360, true)) // last arg = motor 1
-        return 1;
-    if(roboclaw_driver_init(&arm_turntable, uart0, 0x83, pulses_per_rev, pulses_per_rev/360, false)) // last arg = motor 2
+    if(roboclaw_driver_init(&arm_wrist_left, uart0, 0x83, pulses_per_rev, pulses_per_rev/360, true))// last arg = motor 1
+            return 1;
+    if(roboclaw_driver_init(&arm_wrist_right, uart0, 0x83, pulses_per_rev, pulses_per_rev/360, false))// last arg = motor 2
             return 1;
     if(roboclaw_driver_init(&arm_shoulder, uart0, 0x84, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
     if(roboclaw_driver_init(&arm_forearm, uart0, 0x84, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
-    if(roboclaw_driver_init(&arm_wrist_ud, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, true))
+    if(roboclaw_driver_init(&arm_elbow, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
-    if(roboclaw_driver_init(&arm_wrist_r, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, false))
+    if(roboclaw_driver_init(&arm_turntable, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
-    if(roboclaw_driver_init(&arm_elbow, uart0, 0x86, pulses_per_rev, pulses_per_rev/360, true))
-            return 1;
+    if(roboclaw_driver_init(&arm_claw, uart0, 0x86, pulses_per_rev, pulses_per_rev/360, true))
+        return 1;
+
 
     if(xTaskCreate(arm_task, "arm", configMINIMAL_STACK_SIZE, NULL, 1, NULL) != pdPASS)
         return 1;
@@ -68,8 +69,8 @@ void arm_task(void *args)
             arm_turntable.set_speed(&arm_turntable, 0);
             arm_shoulder.set_speed(&arm_shoulder, 0);
             arm_forearm.set_speed(&arm_forearm, 0);
-            arm_wrist_ud.set_speed(&arm_wrist_ud, 0);
-            arm_wrist_r.set_speed(&arm_wrist_r, 0);
+            arm_wrist_left.set_speed(&arm_wrist_left, 0);
+            arm_wrist_right.set_speed(&arm_wrist_right, 0);
             arm_elbow.set_speed(&arm_elbow, 0);
         }
 
@@ -81,7 +82,7 @@ void arm_task(void *args)
  * Change payload to absolute values and set multiplier to hold payload's original sign
  */
 
-void get_direction(int8_t *payload, int *multiplier) {
+void get_direction(int16_t *payload, int *multiplier) {
     if(*payload < 0) {
         *multiplier = -1;
         *payload = -(*payload);
@@ -110,11 +111,11 @@ BCL_STATUS arm_pos_callback(int bcl_inst, BclPayloadPtr payload)
     get_direction(&pyld->forearm, &mult);
     arm_forearm.set_position(&arm_forearm, 20 * mult, pyld->forearm);
 
-    get_direction(&pyld->wrist_up_down, &mult);
-    arm_wrist_ud.set_position(&arm_wrist_ud, 20 * mult, pyld->wrist_up_down);
+    get_direction(&pyld->wrist_left, &mult);
+    arm_wrist_left.set_position(&arm_wrist_left, 20 * mult, pyld->wrist_left);
 
-    get_direction(&pyld->wrist_rot, &mult);
-    arm_wrist_r.set_position(&arm_wrist_r, 20 * mult, pyld->wrist_rot);
+    get_direction(&pyld->wrist_right, &mult);
+    arm_wrist_right.set_position(&arm_wrist_right, 20 * mult, pyld->wrist_right);
 
     get_direction(&pyld->elbow, &mult);
     arm_elbow.set_position(&arm_elbow, 20 * mult, pyld->elbow);
@@ -134,8 +135,8 @@ static BCL_STATUS arm_speed_callback(int bcl_inst, BclPayloadPtr payload)
     arm_turntable.set_speed(&arm_turntable, pyld->turntable);
     arm_shoulder.set_speed(&arm_shoulder, pyld->shoulder);
     arm_forearm.set_speed(&arm_forearm, pyld->forearm);
-    arm_wrist_ud.set_speed(&arm_wrist_ud, pyld->wrist_up_down);
-    arm_wrist_r.set_speed(&arm_wrist_r, pyld->wrist_rot);
+    arm_wrist_left.set_speed(&arm_wrist_left, pyld->wrist_left);
+    arm_wrist_right.set_speed(&arm_wrist_right, pyld->wrist_right);
     arm_elbow.set_speed(&arm_elbow, pyld->elbow);
 
     return BCL_OK;
