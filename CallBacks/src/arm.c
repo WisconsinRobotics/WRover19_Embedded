@@ -59,6 +59,7 @@ int init_arm(void)
 
     BCL_pktCallbackRegister(arm_pos_callback, SET_ARM_POS);
     BCL_pktCallbackRegister(arm_speed_callback, SET_ARM_SPEED);
+    BCL_pktCallbackRegister(arm_get_pos_callback, QUERY_ARM_POS);
 
     return 0;
 }
@@ -103,14 +104,14 @@ BCL_STATUS arm_get_pos_callback(int bcl_inst, BclPayloadPtr payload)
     uint8_t packetBuff[ARM_PACKET_SIZE];
   
     pyld.claw = arm_claw.get_position(&arm_claw);
-    pyld.arm_turntable = arm_turntable.get_position(&arm_turntable);
-    pyld.arm_shoulder = arm_shoulder.get_position(&arm_shoulder);
-    pyld.arm_forearm = arm_forearm.get_position(&arm_forearm);
-    pyld.arm_wrist_ud = arm_wrist_ud.get_position(&arm_wrist_ud);
-    pyld.arm_wrist_r = arm_wrist_r.get_position(&arm_wrist_r);
-    pyld.arm_elbow = arm_elbow.get_position(&arm_elbow);
+    pyld.turntable = arm_turntable.get_position(&arm_turntable);
+    pyld.shoulder = arm_shoulder.get_position(&arm_shoulder);
+    pyld.forearm = arm_forearm.get_position(&arm_forearm);
+    pyld.wrist_left = arm_wrist_left.get_position(&arm_wrist_left);
+    pyld.wrist_right = arm_wrist_right.get_position(&arm_wrist_right);
+    pyld.elbow = arm_elbow.get_position(&arm_elbow);
 
-    BCL_STATUS report = InitializeReportArmPositionPacket(&pkt, &payload);
+    BCL_STATUS report = InitializeReportArmPositionPacket(&pkt, &pyld);
 
     BCL_sendPacket(bcl_inst, &pkt, packetBuff, ARM_PACKET_SIZE);
     return BCL_OK;    
