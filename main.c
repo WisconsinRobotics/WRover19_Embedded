@@ -17,6 +17,7 @@
 #include "arm.h"
 #include "drive.h"
 #include "ride_height.h"
+#include "solenoid.h"
 #include "camera_mast.h"
 #include "ControlServicePackets.h"
 extern void vPortSVCHandler(void);
@@ -78,6 +79,7 @@ int main(void)
     init_drive();
     init_camera_mast();
     init_arm();
+    checkForSolenoid();
 
     InitBCLUDP(main_bcl_service);
 
