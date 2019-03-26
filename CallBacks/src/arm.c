@@ -35,7 +35,7 @@ static motor_controller arm_elbow;
 
 int init_arm(void)
 {
-    const int pulses_per_rev = 7*188*3;
+    const int pulses_per_rev = 2047;
 
     // initialize each joint driver
     if(roboclaw_driver_init(&arm_wrist_left, uart0, 0x83, pulses_per_rev, pulses_per_rev/360, true))// last arg = motor 1
