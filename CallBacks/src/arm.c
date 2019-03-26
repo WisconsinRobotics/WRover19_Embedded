@@ -14,7 +14,11 @@
 #include "roboclaw_driver.h"
 #include "arm.h"
 
+#define	ARM_PAYLOAD_SIZE (14)
+#define ARM_PACKET_SIZE (PACKET_MIN_SIZE + ARM_PAYLOAD_SIZE)
+
 static void arm_task(void *args);
+static BCL_STATUS arm_get_pos_callback(int bcl_inst, BclPayloadPtr payload);
 static BCL_STATUS arm_pos_callback(int bcl_inst, BclPayloadPtr payload);
 static BCL_STATUS arm_speed_callback(int bcl_inst, BclPayloadPtr payload);
 
@@ -31,7 +35,7 @@ static motor_controller arm_elbow;
 
 int init_arm(void)
 {
-    const int pulses_per_rev = 7*188*3;
+    const int pulses_per_rev = 2047;
 
     // initialize each joint driver
     if(roboclaw_driver_init(&arm_wrist_left, uart0, 0x83, pulses_per_rev, pulses_per_rev/360, true))// last arg = motor 1
@@ -55,6 +59,7 @@ int init_arm(void)
 
     BCL_pktCallbackRegister(arm_pos_callback, SET_ARM_POS);
     BCL_pktCallbackRegister(arm_speed_callback, SET_ARM_SPEED);
+    BCL_pktCallbackRegister(arm_get_pos_callback, QUERY_ARM_POS);
 
     return 0;
 }
@@ -90,6 +95,26 @@ void get_direction(int16_t *payload, int *multiplier) {
     else {
         *multiplier = 1;
     }
+}
+
+BCL_STATUS arm_get_pos_callback(int bcl_inst, BclPayloadPtr payload)
+{
+    ArmPayload pyld; //fill a payload struct
+    BclPacket pkt;
+    uint8_t packetBuff[ARM_PACKET_SIZE];
+  
+    pyld.claw = arm_claw.get_position(&arm_claw);
+    pyld.turntable = arm_turntable.get_position(&arm_turntable);
+    pyld.shoulder = arm_shoulder.get_position(&arm_shoulder);
+    pyld.forearm = arm_forearm.get_position(&arm_forearm);
+    pyld.wrist_left = arm_wrist_left.get_position(&arm_wrist_left);
+    pyld.wrist_right = arm_wrist_right.get_position(&arm_wrist_right);
+    pyld.elbow = arm_elbow.get_position(&arm_elbow);
+
+    BCL_STATUS report = InitializeReportArmPositionPacket(&pkt, &pyld);
+
+    BCL_sendPacket(bcl_inst, &pkt, packetBuff, ARM_PACKET_SIZE);
+    return BCL_OK;    
 }
 
 BCL_STATUS arm_pos_callback(int bcl_inst, BclPayloadPtr payload)
