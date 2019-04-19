@@ -38,19 +38,19 @@ int init_arm(void)
     const int pulses_per_rev = 2047;
 
     // initialize each joint driver
-    if(roboclaw_driver_init(&arm_wrist_left, uart0, 0x83, pulses_per_rev, pulses_per_rev/360, true))// last arg = motor 1
+    if(roboclaw_driver_init(&arm_wrist_left, uart0, 0x84, pulses_per_rev, pulses_per_rev/360, true))// last arg = motor 1
             return 1;
-    if(roboclaw_driver_init(&arm_wrist_right, uart0, 0x83, pulses_per_rev, pulses_per_rev/360, false))// last arg = motor 2
+    if(roboclaw_driver_init(&arm_wrist_right, uart0, 0x84, pulses_per_rev, pulses_per_rev/360, false))// last arg = motor 2
             return 1;
-    if(roboclaw_driver_init(&arm_shoulder, uart0, 0x84, pulses_per_rev, pulses_per_rev/360, true))
+    if(roboclaw_driver_init(&arm_shoulder, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
-    if(roboclaw_driver_init(&arm_forearm, uart0, 0x84, pulses_per_rev, pulses_per_rev/360, false))
+    if(roboclaw_driver_init(&arm_forearm, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
-    if(roboclaw_driver_init(&arm_elbow, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, true))
+    if(roboclaw_driver_init(&arm_elbow, uart0, 0x86, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
-    if(roboclaw_driver_init(&arm_turntable, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, false))
+    if(roboclaw_driver_init(&arm_turntable, uart0, 0x86, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
-    if(roboclaw_driver_init(&arm_claw, uart0, 0x86, pulses_per_rev, pulses_per_rev/360, true))
+    if(roboclaw_driver_init(&arm_claw, uart0, 0x87, pulses_per_rev, pulses_per_rev/360, true))
         return 1;
 
 
