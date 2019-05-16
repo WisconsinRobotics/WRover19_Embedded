@@ -34,11 +34,11 @@ int init_drive(void)
             return 1;
     if(roboclaw_driver_init(&front_left, uart0, 0x82, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
-    if(roboclaw_driver_init(&back_right, uart0, 0x80, pulses_per_rev, pulses_per_rev/360, false))
+    if(roboclaw_driver_init(&back_right, uart0, 0x87, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
-    if(roboclaw_driver_init(&mid_right, uart0, 0x81, pulses_per_rev, pulses_per_rev/360, false))
+    if(roboclaw_driver_init(&mid_right, uart0, 0x86, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
-    if(roboclaw_driver_init(&front_right, uart0, 0x82, pulses_per_rev, pulses_per_rev/360, false))
+    if(roboclaw_driver_init(&front_right, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, true))
             return 1;
 
     if(xTaskCreate(drive_task, "drv", configMINIMAL_STACK_SIZE, NULL, 1, NULL) != pdPASS)

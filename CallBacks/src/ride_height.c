@@ -35,17 +35,17 @@ BCL_STATUS ride_height_callback(int bcl_inst, BclPayloadPtr payload)
     RideHeightPayload *pyld = (RideHeightPayload *)payload;
 
     if(pyld->front > 0) {
-        front_rh.set_speed(&front_rh, -64);
+        front_rh.set_speed(&front_rh, -76);
     } else if(pyld->front < 0) {
-        front_rh.set_speed(&front_rh, 64);
+        front_rh.set_speed(&front_rh, 76);
     } else {
         front_rh.set_speed(&front_rh, 0);
     }
 
     if(pyld->back > 0) {
-        back_rh.set_speed(&back_rh, 64);
+        back_rh.set_speed(&back_rh, 127);
     } else if(pyld->back < 0) {
-        back_rh.set_speed(&back_rh, -64);
+        back_rh.set_speed(&back_rh, -127);
     } else {
         back_rh.set_speed(&back_rh, 0);
     }

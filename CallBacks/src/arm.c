@@ -42,15 +42,15 @@ int init_arm(void)
             return 1;
     if(roboclaw_driver_init(&arm_wrist_right, uart0, 0x84, pulses_per_rev, pulses_per_rev/360, false))// last arg = motor 2
             return 1;
-    if(roboclaw_driver_init(&arm_shoulder, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, true))
+    if(roboclaw_driver_init(&arm_shoulder, uart0, 0x81, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
     if(roboclaw_driver_init(&arm_forearm, uart0, 0x85, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
-    if(roboclaw_driver_init(&arm_elbow, uart0, 0x86, pulses_per_rev, pulses_per_rev/360, true))
+    if(roboclaw_driver_init(&arm_elbow, uart0, 0x82, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
-    if(roboclaw_driver_init(&arm_turntable, uart0, 0x86, pulses_per_rev, pulses_per_rev/360, false))
+    if(roboclaw_driver_init(&arm_turntable, uart0, 0x80, pulses_per_rev, pulses_per_rev/360, false))
             return 1;
-    if(roboclaw_driver_init(&arm_claw, uart0, 0x87, pulses_per_rev, pulses_per_rev/360, true))
+    if(roboclaw_driver_init(&arm_claw, uart0, 0x86, pulses_per_rev, pulses_per_rev/360, false))
         return 1;
 
 
