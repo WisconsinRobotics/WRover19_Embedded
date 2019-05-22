@@ -15,12 +15,15 @@
 #include "arm.h"
 
 #define	ARM_PAYLOAD_SIZE (14)
+#define PID_PAYLOAD_SIZE (15)
 #define ARM_PACKET_SIZE (PACKET_MIN_SIZE + ARM_PAYLOAD_SIZE)
+#define PID_PACKET_SIZE (PACKET_MIN_SIZE + PID_PAYLOAD_SIZE)
 
 static void arm_task(void *args);
 static BCL_STATUS arm_get_pos_callback(int bcl_inst, BclPayloadPtr payload);
 static BCL_STATUS arm_pos_callback(int bcl_inst, BclPayloadPtr payload);
 static BCL_STATUS arm_speed_callback(int bcl_inst, BclPayloadPtr payload);
+static BCL_STATUS arm_get_pid_callback(int bcl_inst, BclPayloadPtr payload);
 
 static uint32_t last_packet_ticks = 0;
 static bool last_packet_speed = false;
@@ -60,6 +63,7 @@ int init_arm(void)
     BCL_pktCallbackRegister(arm_pos_callback, SET_ARM_POS);
     BCL_pktCallbackRegister(arm_speed_callback, SET_ARM_SPEED);
     BCL_pktCallbackRegister(arm_get_pos_callback, QUERY_ARM_POS);
+    BCL_pktCallbackRegister(arm_get_pid_callback, QUERY_PID);
 
     return 0;
 }
@@ -163,6 +167,51 @@ static BCL_STATUS arm_speed_callback(int bcl_inst, BclPayloadPtr payload)
     arm_wrist_left.set_speed(&arm_wrist_left, pyld->wrist_left);
     arm_wrist_right.set_speed(&arm_wrist_right, pyld->wrist_right);
     arm_elbow.set_speed(&arm_elbow, pyld->elbow);
+
+    return BCL_OK;
+}
+
+static BCL_STATUS arm_get_pid_callback(int bcl_inst, BclPayloadPtr payload)
+{
+    BclPacket pkt;
+    uint8_t packetBuff[PID_PACKET_SIZE];
+    PidPayload *pyld = (PidPayload *)payload;
+    PidPayload retPyld;
+    motor_controller *mc = NULL;
+
+    //Determine which motor it is
+    switch (pyld->addr) {
+    case 0x84:
+        if (pyld->m1) {
+            mc = &arm_wrist_left;
+        } else {
+            mc = &arm_wrist_right;
+        }
+        break;
+    case 0x81:
+        mc = &arm_shoulder;
+        break;
+    case 0x85:
+        mc = &arm_forearm;
+        break;
+    case 0x82:
+        mc = &arm_elbow;
+        break;
+    case 0x80:
+        mc = &arm_turntable;
+        break;
+    case 0x86:
+        mc = &arm_claw;
+        break;
+    default:
+        return BCL_INVALID_PARAMETER;
+    }
+
+    mc->get_pid_constants(mc, &retPyld.p, &retPyld.i, &retPyld.d, pyld->vel);
+
+    BCL_STATUS report = InitializeReportPidPacket(&pkt, &retPyld);
+
+    BCL_sendPacket(bcl_inst, &pkt, packetBuff, PID_PACKET_SIZE);
 
     return BCL_OK;
 }
