@@ -24,6 +24,7 @@ static BCL_STATUS arm_get_pos_callback(int bcl_inst, BclPayloadPtr payload);
 static BCL_STATUS arm_pos_callback(int bcl_inst, BclPayloadPtr payload);
 static BCL_STATUS arm_speed_callback(int bcl_inst, BclPayloadPtr payload);
 static BCL_STATUS arm_get_pid_callback(int bcl_inst, BclPayloadPtr payload);
+static BCL_STATUS arm_set_pid_callback(int bcl_inst, BclPayloadPtr payload);
 
 static uint32_t last_packet_ticks = 0;
 static bool last_packet_speed = false;
@@ -64,6 +65,7 @@ int init_arm(void)
     BCL_pktCallbackRegister(arm_speed_callback, SET_ARM_SPEED);
     BCL_pktCallbackRegister(arm_get_pos_callback, QUERY_ARM_POS);
     BCL_pktCallbackRegister(arm_get_pid_callback, QUERY_PID);
+    BCL_pktCallbackRegister(arm_set_pid_callback, SET_PID);
 
     return 0;
 }
@@ -212,6 +214,44 @@ static BCL_STATUS arm_get_pid_callback(int bcl_inst, BclPayloadPtr payload)
     BCL_STATUS report = InitializeReportPidPacket(&pkt, &retPyld);
 
     BCL_sendPacket(bcl_inst, &pkt, packetBuff, PID_PACKET_SIZE);
+
+    return BCL_OK;
+}
+
+static BCL_STATUS arm_set_pid_callback(int bcl_inst, BclPayloadPtr payload)
+{
+    PidPayload *pyld = (PidPayload *)payload;
+    motor_controller *mc = NULL;
+
+    //Determine which motor it is
+    switch (pyld->addr) {
+    case 0x84:
+        if (pyld->m1) {
+            mc = &arm_wrist_left;
+        } else {
+            mc = &arm_wrist_right;
+        }
+        break;
+    case 0x81:
+        mc = &arm_shoulder;
+        break;
+    case 0x85:
+        mc = &arm_forearm;
+        break;
+    case 0x82:
+        mc = &arm_elbow;
+        break;
+    case 0x80:
+        mc = &arm_turntable;
+        break;
+    case 0x86:
+        mc = &arm_claw;
+        break;
+    default:
+        return BCL_INVALID_PARAMETER;
+    }
+
+    mc->set_pid_constants(mc, pyld->p, pyld->i, pyld->d, 1023, pyld->vel);
 
     return BCL_OK;
 }
