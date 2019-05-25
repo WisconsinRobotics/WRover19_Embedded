@@ -76,7 +76,7 @@ BCL_STATUS drive_callback(int bcl_inst, BclPayloadPtr payload)
 
     last_packet_ticks = xTaskGetTickCount();
 
-    pyld->right = -pyld->right;
+    pyld->right = pyld->right;
     pyld->left = -pyld->left;
 
     back_left.set_speed(&back_left, pyld->left);
