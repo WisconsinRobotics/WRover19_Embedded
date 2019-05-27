@@ -50,7 +50,7 @@ int init_camera_mast(void)
     BCL_pktCallbackRegister(camera_mast_callback, SET_MAST_POS);
 
     // wait a bit then initialize the positions
-    camera_mast_delay(100);
+    camera_mast_delay(50);
 
     // Only uncomment this if dynamixels are borked/new, parameter sets the new
     // ID. Only one can be uncommented at a time.
