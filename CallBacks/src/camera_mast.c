@@ -50,12 +50,12 @@ int init_camera_mast(void)
     BCL_pktCallbackRegister(camera_mast_callback, SET_MAST_POS);
 
     // wait a bit then initialize the positions
-    camera_mast_delay(100);
+    camera_mast_delay(50);
 
     // Only uncomment this if dynamixels are borked/new, parameter sets the new
     // ID. Only one can be uncommented at a time.
-    //AX12A_unfuck(Uart, TILT_ID, Uart_Settings.baud);
-    //AX12A_unfuck(Uart, PAN_ID, Uart_Settings.baud);
+    //AX12A_unfuck(uart4, TILT_ID, Uart_Settings.baud);
+    //AX12A_unfuck(uart4, PAN_ID, Uart_Settings.baud);
 
     // set to position mode to initialize
     AX12A_setPositionRotation(uart4, PAN_ID, 0x3FF, 0x000);
@@ -76,6 +76,8 @@ int init_camera_mast(void)
 static BCL_STATUS camera_mast_callback(int bcl_inst, BclPayloadPtr payload)
 {
     CameraMastPayload *pyld = payload;
+
+    //AX12A_unfuck(uart4, PAN_ID, Uart_Settings.baud);
 
     // set the new goal positions
     if(cur_pan + pyld->pan <= 0x3FF && cur_pan + pyld->pan >= 0) {

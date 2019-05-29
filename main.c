@@ -19,6 +19,7 @@
 #include "ride_height.h"
 #include "solenoid.h"
 #include "camera_mast.h"
+#include "soil_door.h"
 #include "ControlServicePackets.h"
 extern void vPortSVCHandler(void);
 extern void xPortPendSVHandler(void);
@@ -78,6 +79,7 @@ int main(void)
     init_ride_height();
     init_drive();
     init_camera_mast();
+    init_soil_door();
     init_arm();
     checkForSolenoid();
 
