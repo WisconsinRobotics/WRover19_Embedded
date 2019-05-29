@@ -16,13 +16,13 @@
 
 #define SCI_ID              (0x02)
 
-#define DOOR_OPEN 0x300
+#define DOOR_OPEN 0x330
 #define DOOR_CLOSE 0x1F0
 
 static BCL_STATUS soil_door_callback(int bcl_inst, BclPayloadPtr payload);
 static void ax12_delay(uint32_t delay);
 
-static const uartInfo Uart_Settings = {
+static uartInfo Uart_Settings = {
     .baud = 1000000,
     .wlen = 8,
     .parity = false,
@@ -61,6 +61,6 @@ static BCL_STATUS soil_door_callback(int bcl_inst, BclPayloadPtr payload)
     if(pyld->position == 0) {
         AX12A_setGoalPosition(uart4, SCI_ID, DOOR_CLOSE);
     } else {
-        AX12A_setGoalPosition(uart4, SCI_ID, DOOR_CLOSE);
+        AX12A_setGoalPosition(uart4, SCI_ID, DOOR_OPEN);
     }
 }
